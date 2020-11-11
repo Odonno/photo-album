@@ -1,0 +1,15 @@
+.imageContainer {
+	display: inline-block;
+	margin: 8px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: box-shadow ease-in-out 0.2s;
+}
+.imageContainer:hover {
+	box-shadow: 0 0 4px 4px rgba(0, 0, 255, 0.2);
+}
+
+.image {
+	object-fit: cover;
+	border-radius: 4px;
+}

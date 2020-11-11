@@ -1,0 +1,58 @@
+.container {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background-color: ghostwhite;
+}
+
+.header {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 60px;
+	background-color: purple;
+	box-shadow: 0 0 3px 3px purple;
+}
+
+.searchbar {
+	width: 300px;
+	height: 30px;
+}
+
+.searchedTags {
+	position: absolute;
+	width: 300px;
+	z-index: 100;
+	transition: ease-out 0.3s;
+}
+.searchedTagsDisplayed {
+	composes: searchedTags;
+	visibility: visible;
+	opacity: 1;
+}
+.searchedTagsHidden {
+	composes: searchedTags;
+	visibility: collapse;
+	opacity: 0;
+}
+
+.searchedTagItem {
+	width: 100%;
+	background-color: white;
+}
+.searchedTagItem:hover,
+.searchedTagItem:focus {
+	color: ghostwhite;
+	background-color: rebeccapurple;
+}
+.searchedTagItem > a {
+	display: block;
+	width: 100%;
+	padding: 4px 8px;
+}
+
+.content {
+	display: block;
+	padding: 0 0.5rem;
+	margin-top: 10px;
+}
