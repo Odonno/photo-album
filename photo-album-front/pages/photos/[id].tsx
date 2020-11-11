@@ -6,15 +6,16 @@ import { useRouter } from 'next/router';
 import { ChangeEvent, useState, KeyboardEvent } from 'react';
 import type { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import useSWR from 'swr';
+import { photoAlbumApi } from '../../models/env';
 
 const fetcher = async (url: string) => {
-	const res = await fetch(`https://localhost:5001${url}`);
+	const res = await fetch(`${photoAlbumApi}${url}`);
 	const photo: Photo = await res.json();
 	return photo;
 };
 
 const addTagToPhoto = async (photoId: number, tag: string) => {
-	const res = await fetch(`https://localhost:5001/api/photos/${photoId}/tag/${tag}`, {
+	const res = await fetch(`${photoAlbumApi}/api/photos/${photoId}/tag/${tag}`, {
 		method: 'POST',
 	});
 	const photo: Photo = await res.json();
@@ -22,7 +23,7 @@ const addTagToPhoto = async (photoId: number, tag: string) => {
 };
 
 const removeTagFromPhoto = async (photoId: number, tag: string) => {
-	const res = await fetch(`https://localhost:5001/api/photos/${photoId}/tag/${tag}`, {
+	const res = await fetch(`${photoAlbumApi}/api/photos/${photoId}/tag/${tag}`, {
 		method: 'DELETE',
 	});
 	const photo: Photo = await res.json();

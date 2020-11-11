@@ -5,9 +5,10 @@ import type { Photo } from '../models';
 import { ChangeEvent } from 'react';
 import type { InferGetStaticPropsType } from 'next';
 import useSWR from 'swr';
+import { photoAlbumApi } from '../models/env';
 
 const fetcher = async () => {
-	const res = await fetch('https://localhost:5001/api/photos');
+	const res = await fetch(`${photoAlbumApi}/api/photos`);
 	const photos: Photo[] = await res.json();
 	return photos;
 };
@@ -16,7 +17,7 @@ const uploadPhoto = async (file: File) => {
 	const data = new FormData();
 	data.append('file', file);
 
-	const res = await fetch('https://localhost:5001/api/photos', {
+	const res = await fetch(`${photoAlbumApi}/api/photos`, {
 		method: 'POST',
 		body: data,
 	});

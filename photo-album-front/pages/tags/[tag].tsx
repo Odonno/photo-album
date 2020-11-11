@@ -6,9 +6,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import useSWR from 'swr';
+import { photoAlbumApi } from '../../models/env';
 
 const fetcher = async (url: string) => {
-	const res = await fetch(`https://localhost:5001${url}`);
+	const res = await fetch(`${photoAlbumApi}${url}`);
 	const photos: Photo[] = await res.json();
 	return photos;
 };

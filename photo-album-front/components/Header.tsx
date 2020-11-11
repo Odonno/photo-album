@@ -2,6 +2,7 @@ import { ChangeEvent, useState } from 'react';
 import styles from '../styles/Layout.module.css';
 import Link from 'next/link';
 import useSWR from 'swr';
+import { photoAlbumApi } from '../models/env';
 
 const Header = () => {
 	const [hasSearchFocus, setHasSearchFocus] = useState(false);
@@ -9,7 +10,7 @@ const Header = () => {
 
 	const shouldFetch = !!search;
 	const { data: tags } = useSWR<string[]>(
-		shouldFetch ? `https://localhost:5001/api/tags/search/${search}` : null
+		shouldFetch ? `${photoAlbumApi}/api/tags/search/${search}` : null
 	);
 
 	const onSearchChanged = (e: ChangeEvent<HTMLInputElement>) => {
