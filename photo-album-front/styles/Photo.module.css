@@ -4,6 +4,10 @@
 	align-items: center;
 }
 
+.image img {
+	object-fit: contain;
+}
+
 .tagsContainer {
 	margin-top: 10px;
 	display: flex;

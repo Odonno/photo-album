@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using PhotoAlbumApi.Data;
 using PhotoAlbumApi.Models;
 
@@ -14,10 +18,33 @@ namespace PhotoAlbumApi.Controllers
     public class PhotosController : ControllerBase
     {
         private readonly PhotoAlbumContext _context;
+        private readonly string _blobStorageConnectionString;
 
-        public PhotosController(PhotoAlbumContext context)
+        public PhotosController(PhotoAlbumContext context, IConfiguration configuration)
         {
             _context = context;
+            _blobStorageConnectionString = configuration.GetConnectionString("BlobStorage");
+        }
+
+        private async Task<BlobContainerClient> GetPhotosBlobContainer()
+        {
+            // Create a BlobServiceClient object which will be used to create a container client
+            var blobServiceClient = new BlobServiceClient(_blobStorageConnectionString);
+
+            // Get or create a unique name for the container
+            string containerName = "photos";
+
+            try
+            {
+                var containerClient = await blobServiceClient.CreateBlobContainerAsync(containerName);
+                await containerClient.Value.SetAccessPolicyAsync(PublicAccessType.Blob);
+
+                return containerClient;
+            }
+            catch
+            {
+                return blobServiceClient.GetBlobContainerClient(containerName);
+            }
         }
 
         [HttpGet]
@@ -61,18 +88,29 @@ namespace PhotoAlbumApi.Controllers
         }
 
         [HttpPost]
-        public PhotoResult PostPhoto(IFormFile file)
+        public async Task<PhotoResult> PostPhoto(IFormFile file)
         {
-            // TODO : Upload file to Azure Blob Storage
+            // Create the container and return a container client object
+            var containerClient = await GetPhotosBlobContainer();
+
+            // Get a reference to a blob
+            var blobClient = containerClient.GetBlobClient(file.FileName);
+
+            // Open the file and upload its data            
+            using var uploadFileStream = file.OpenReadStream();
+            var blob = await blobClient.UploadAsync(uploadFileStream, true);
+            uploadFileStream.Close();
+
+            // Save photo in database
             var photo = new Photo
             {
-                Url = "https://images.unsplash.com/photo-1502759683299-cdcd6974244f?auto=format&fit=crop&w=440&h=220&q=60",
+                Url = blobClient.Uri.AbsoluteUri,
                 CreatedAt = DateTime.Now,
                 Tags = new List<Tag>()
             };
 
             _context.Photos.Add(photo);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return new PhotoResult
             {
