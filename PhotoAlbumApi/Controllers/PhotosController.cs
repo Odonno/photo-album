@@ -53,17 +53,15 @@ namespace PhotoAlbumApi.Controllers
             return _context.Photos
                 .Include(p => p.Tags)
                 .OrderByDescending(p => p.CreatedAt)
-                .ToList()
-                .Select(p =>
-                {
-                    return new PhotoResult
+                .Select(p => 
+                    new PhotoResult
                     {
                         Id = p.Id,
                         Url = p.Url,
                         CreatedAt = p.CreatedAt,
                         Tags = p.Tags.Select(t => t.Value).ToList()
-                    };
-                });
+                    }
+                );
         }
 
         [HttpGet("{id}")]

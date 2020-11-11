@@ -39,17 +39,15 @@ namespace PhotoAlbumApi.Controllers
                 .Include(p => p.Tags)
                 .Where(p => p.Tags.Any(t => t.Value.ToLower() == lowerTag))
                 .OrderByDescending(p => p.CreatedAt)
-                .ToList()
                 .Select(p =>
-                {
-                    return new PhotoResult
+                    new PhotoResult
                     {
                         Id = p.Id,
                         Url = p.Url,
                         CreatedAt = p.CreatedAt,
                         Tags = p.Tags.Select(t => t.Value).ToList()
-                    };
-                });
+                    }
+                );
         }
     }
 }
