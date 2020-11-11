@@ -4,39 +4,45 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Link from 'next/link';
+import type { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import useSWR from 'swr';
 
-const results: Photo[] = [
-	{
-		id: 1,
-		url:
-			'https://images.unsplash.com/photo-1494548162494-384bba4ab999?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80',
-		tags: [],
-	},
-	{
-		id: 2,
-		url:
-			'https://images.unsplash.com/photo-1494548162494-384bba4ab999?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80',
-		tags: [],
-	},
-	{
-		id: 4,
-		url:
-			'https://images.unsplash.com/photo-1494548162494-384bba4ab999?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80',
-		tags: [],
-	},
-	{
-		id: 5,
-		url:
-			'https://images.unsplash.com/photo-1494548162494-384bba4ab999?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80',
-		tags: [],
-	},
-];
+const fetcher = async (tag: string) => {
+	const res = await fetch(`https://localhost:5001/api/tags/${encodeURIComponent(tag)}/photos`);
+	const photos: Photo[] = await res.json();
+	return photos;
+};
 
-const TagPage = () => {
+export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+	const { params } = context;
+
+	let photos: Photo[] = [];
+
+	if (params) {
+		const { tag } = params as { tag: string | undefined };
+
+		if (tag) {
+			photos = await fetcher(tag);
+		}
+	}
+
+	return {
+		props: {
+			photos,
+		},
+	};
+};
+
+const TagPage = (props: InferGetServerSidePropsType<typeof getServerSideProps>) => {
 	const router = useRouter();
-	const { tag } = router.query;
+	const { tag } = router.query as { tag: string };
 
-	// TODO : call to get photos from tag, from API
+	const shouldFetch = !!tag;
+	const { data: photos } = useSWR(
+		shouldFetch ? `/api/tags/${encodeURIComponent(tag)}/photos` : null,
+		fetcher,
+		{ initialData: props.photos }
+	);
 
 	return (
 		<div>
@@ -46,24 +52,25 @@ const TagPage = () => {
 			</Head>
 
 			<h4>
-				&quot;{tag}&quot; - {results.length} résultats
+				&quot;{tag}&quot; - {photos?.length || 0} résultats
 			</h4>
 
-			{results.map((photo) => {
-				return (
-					<div key={photo.id} className={styles.imageContainer}>
-						<Link href={`/photos/${encodeURIComponent(photo.id)}`}>
-							<Image
-								src={photo.url}
-								alt=""
-								width={150}
-								height={250}
-								className={styles.image}
-							/>
-						</Link>
-					</div>
-				);
-			})}
+			{photos &&
+				photos.map((photo) => {
+					return (
+						<div key={photo.id} className={styles.imageContainer}>
+							<Link href={`/photos/${encodeURIComponent(photo.id)}`}>
+								<Image
+									src={photo.url}
+									alt=""
+									width={150}
+									height={250}
+									className={styles.image}
+								/>
+							</Link>
+						</div>
+					);
+				})}
 		</div>
 	);
 };

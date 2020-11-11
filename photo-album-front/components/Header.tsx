@@ -1,20 +1,16 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import styles from '../styles/Layout.module.css';
 import Link from 'next/link';
-
-const tags = ['hello', 'world', 'océaN', 'victoire', 'pluie'];
+import useSWR from 'swr';
 
 const Header = () => {
 	const [hasSearchFocus, setHasSearchFocus] = useState(false);
 	const [search, setSearch] = useState('');
-	const [tagsSearched, setTagsSearched] = useState<string[]>([]);
 
-	// TODO : call to search tags from API
-
-	useEffect(() => {
-		const searchLower = search.toLowerCase();
-		setTagsSearched(tags.filter((t) => t.toLowerCase().startsWith(searchLower)));
-	}, [search, setTagsSearched]);
+	const shouldFetch = !!search;
+	const { data: tags } = useSWR<string[]>(
+		shouldFetch ? `https://localhost:5001/api/tags/search/${search}` : null
+	);
 
 	const onSearchChanged = (e: ChangeEvent<HTMLInputElement>) => {
 		setSearch(e.target.value);
@@ -44,16 +40,19 @@ const Header = () => {
 
 				<div
 					className={
-						hasSearchFocus ? styles.searchedTagsDisplayed : styles.searchedTagsHidden
+						tags && hasSearchFocus
+							? styles.searchedTagsDisplayed
+							: styles.searchedTagsHidden
 					}
 				>
-					{tagsSearched.map((tag) => {
-						return (
-							<div key={tag} className={styles.searchedTagItem}>
-								<Link href={`/tags/${encodeURIComponent(tag)}`}>{tag}</Link>
-							</div>
-						);
-					})}
+					{tags &&
+						tags.map((tag) => {
+							return (
+								<div key={tag} className={styles.searchedTagItem}>
+									<Link href={`/tags/${encodeURIComponent(tag)}`}>{tag}</Link>
+								</div>
+							);
+						})}
 				</div>
 			</div>
 		</div>

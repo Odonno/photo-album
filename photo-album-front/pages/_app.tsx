@@ -4,6 +4,10 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import Header from '../components/Header';
 
+if (process.env.NODE_ENV === 'development') {
+	process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 const MyApp = ({ Component, pageProps }: AppProps) => {
 	return (
 		<div className={styles.container}>
@@ -20,10 +24,6 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 		</div>
 	);
 };
-
-// function MyApp({ Component, pageProps }: AppProps) {
-//   return <Component {...pageProps} />;
-// }
 
 // Only uncomment this method if you have blocking data requirements for
 // every single page in your application. This disables the ability to
