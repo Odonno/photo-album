@@ -7,8 +7,8 @@ import { ChangeEvent, useState, KeyboardEvent } from 'react';
 import type { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import useSWR from 'swr';
 
-const fetcher = async (id: number) => {
-	const res = await fetch(`https://localhost:5001/api/photos/${encodeURIComponent(id)}`);
+const fetcher = async (url: string) => {
+	const res = await fetch(`https://localhost:5001${url}`);
 	const photo: Photo = await res.json();
 	return photo;
 };
@@ -38,7 +38,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 		const { id } = params as { id: number | undefined };
 
 		if (id) {
-			photo = await fetcher(id);
+			photo = await fetcher(`/api/photos/${encodeURIComponent(id)}`);
 		}
 	}
 

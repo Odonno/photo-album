@@ -7,8 +7,8 @@ import Link from 'next/link';
 import type { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import useSWR from 'swr';
 
-const fetcher = async (tag: string) => {
-	const res = await fetch(`https://localhost:5001/api/tags/${encodeURIComponent(tag)}/photos`);
+const fetcher = async (url: string) => {
+	const res = await fetch(`https://localhost:5001${url}`);
 	const photos: Photo[] = await res.json();
 	return photos;
 };
@@ -22,7 +22,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 		const { tag } = params as { tag: string | undefined };
 
 		if (tag) {
-			photos = await fetcher(tag);
+			photos = await fetcher(`/api/tags/${encodeURIComponent(tag)}/photos`);
 		}
 	}
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PhotoAlbumApi.Models
 {
-    public class Photo
+    public class PhotoResult
     {
         public int Id { get; set; }
         public string Url { get; set; }
