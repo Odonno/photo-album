@@ -54,6 +54,7 @@ const HomePage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 				<input
 					type="file"
 					id="file"
+					accept="image/*"
 					className={styles.addPhotoInput}
 					onChange={async (e) => await onFileChanged(e)}
 				/>
