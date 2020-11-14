@@ -48,7 +48,7 @@ namespace PhotoAlbumApi.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<PhotoResult> GetAll()
+        public Task<List<PhotoResult>> GetAll()
         {
             return _context.Photos
                 .Include(p => p.Tags)
@@ -61,15 +61,16 @@ namespace PhotoAlbumApi.Controllers
                         CreatedAt = p.CreatedAt,
                         Tags = p.Tags.Select(t => t.Value).ToList()
                     }
-                );
+                )
+                .ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public PhotoResult GetById(int id)
+        public async Task<PhotoResult> GetById(int id)
         {
-            var photo = _context.Photos
+            var photo = await _context.Photos
                    .Include(p => p.Tags)
-                   .FirstOrDefault(p => p.Id == id);
+                   .FirstOrDefaultAsync(p => p.Id == id);
 
             if (photo == null)
             {
@@ -120,9 +121,9 @@ namespace PhotoAlbumApi.Controllers
         }
 
         [HttpPost("{photoId}/tag/{tag}")]
-        public PhotoResult AddPhotoTag(int photoId, string tag)
+        public async Task<PhotoResult> AddPhotoTag(int photoId, string tag)
         {
-            var photo = _context.Photos.FirstOrDefault(p => p.Id == photoId);
+            var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == photoId);
 
             if (photo == null)
             {
@@ -130,7 +131,7 @@ namespace PhotoAlbumApi.Controllers
             }
 
             photo.Tags.Add(new Tag { Value = tag });
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return new PhotoResult
             {
@@ -142,19 +143,19 @@ namespace PhotoAlbumApi.Controllers
         }
 
         [HttpDelete("{photoId}/tag/{tag}")]
-        public PhotoResult RemovePhotoTag(int photoId, string tag)
+        public async Task<PhotoResult> RemovePhotoTag(int photoId, string tag)
         {
-            var photo = _context.Photos.FirstOrDefault(p => p.Id == photoId);
+            var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == photoId);
 
             if (photo == null)
             {
                 return null;
             }
 
-            var tagToRemove = _context.Tags.FirstOrDefault(t => t.PhotoId == photoId && t.Value == tag);
+            var tagToRemove = await _context.Tags.FirstOrDefaultAsync(t => t.PhotoId == photoId && t.Value == tag);
 
             photo.Tags.Remove(tagToRemove);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return new PhotoResult
             {

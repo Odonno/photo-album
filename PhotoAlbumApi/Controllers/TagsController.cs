@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhotoAlbumApi.Data;
@@ -19,7 +20,7 @@ namespace PhotoAlbumApi.Controllers
         }
 
         [HttpGet("search/{search}")]
-        public IEnumerable<string> Search(string search)
+        public Task<List<string>> Search(string search)
         {
             string lowerSearch = search.ToLower();
 
@@ -27,11 +28,12 @@ namespace PhotoAlbumApi.Controllers
                 .Select(t => t.Value)
                 .Where(v => v.ToLower().StartsWith(lowerSearch))
                 .Distinct()
-                .Take(5);
+                .Take(5)
+                .ToListAsync();
         }
 
         [HttpGet("{tag}/photos")]
-        public IEnumerable<PhotoResult> GetPhotosByTag(string tag)
+        public Task<List<PhotoResult>> GetPhotosByTag(string tag)
         {
             string lowerTag = tag.ToLower();
 
@@ -47,7 +49,8 @@ namespace PhotoAlbumApi.Controllers
                         CreatedAt = p.CreatedAt,
                         Tags = p.Tags.Select(t => t.Value).ToList()
                     }
-                );
+                )
+                .ToListAsync();
         }
     }
 }
